@@ -1,0 +1,103 @@
+/* styles.css */
+
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    width: 100vw;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh; /* Prevents layout issues */
+    width: 100vw; /* Ensure it takes the full width */
+    background: linear-gradient(to bottom right, #3b82f6, #8b5cf6);
+    color: white;
+    text-align: center;
+}
+
+.card {
+    background-color: white;
+    box-shadow: 0px 4px 30px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 30px;
+    width: 90%; /* Adjust for smaller screens */
+    max-width: 400px;
+    text-align: center;
+    margin: auto; /* Centering */
+}
+
+.card h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #2d3748;
+    margin-bottom: 24px;
+}
+
+.card p {
+    color: #4a5568;
+    margin-bottom: 20px;
+}
+
+.card button {
+    background-color: #2563eb;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    border: none;
+}
+
+.card button:hover {
+    background-color: #1d4ed8;
+}
+
+.form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    width: 100vw;
+    background-color: #edf2f7;
+    text-align: center;
+}
+
+.form-card {
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 30px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 400px;
+    margin: auto;
+}
+
+.form-card input {
+    padding: 12px;
+    margin-bottom: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    width: 100%;
+}
+
+.form-card button {
+    background-color: #2563eb;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    border: none;
+    width: 100%;
+}
+
+.form-card button:hover {
+    background-color: #1d4ed8;
+}
