@@ -1,11 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { FaUser, FaInfoCircle, FaRobot, FaCamera } from "react-icons/fa"; // Import necessary icons
+import { FaUser, FaInfoCircle, FaRobot, FaCamera } from "react-icons/fa";
+import Webcam from "react-webcam"; // Import Webcam
 
 const Home = () => {
     const [position, setPosition] = useState({ x: window.innerWidth - 80, y: window.innerHeight - 100 });
     const [dragging, setDragging] = useState(false);
     const [offset, setOffset] = useState({ x: 0, y: 0 });
+    const [showWebcam, setShowWebcam] = useState(false); // State to toggle webcam
+    const webcamRef = useRef(null); // Webcam reference
 
     useEffect(() => {
         const handleMouseMove = (e) => {
@@ -33,6 +36,42 @@ const Home = () => {
         alert("Chatbot Coming Soon! 🤖");
     };
 
+    // Function to upload captured image to FastAPI backend
+    const uploadImage = async (imageFile) => {
+        const formData = new FormData();
+        formData.append("file", imageFile);
+
+        try {
+            const response = await fetch("http://127.0.0.1:8000/upload", {
+                method: "POST",
+                body: formData,
+            });
+            const data = await response.json();
+            console.log("Upload Response:", data);
+            alert("Image uploaded successfully!");
+        } catch (error) {
+            console.error("Error uploading image:", error);
+            alert("Failed to upload image.");
+        }
+    };
+
+    // Capture image from webcam and send it to backend
+    const handleCapture = () => {
+        if (!webcamRef.current) return;
+
+        const imageSrc = webcamRef.current.getScreenshot();
+
+        // Convert DataURL to File object
+        fetch(imageSrc)
+            .then(res => res.blob())
+            .then(blob => {
+                const file = new File([blob], "captured_image.jpg", { type: "image/jpeg" });
+                uploadImage(file);  // Send image to backend
+                setShowWebcam(false); // Close webcam after capture
+            })
+            .catch(err => console.error("Error converting image:", err));
+    };
+
     return (
         <div style={containerStyle}>
             <div style={cardStyle}>
@@ -51,11 +90,9 @@ const Home = () => {
                     </Link>
 
                     {/* Attendance Recorder Button with Camera Icon */}
-                    <Link to="/attendance">
-                        <button style={buttonStyle}>
-                            <FaCamera size={20} /> Attendance Recorder
-                        </button>
-                    </Link>
+                    <button style={buttonStyle} onClick={() => setShowWebcam(true)}>
+                        <FaCamera size={20} /> Attendance Recorder
+                    </button>
                 </div>
 
                 {/* Info Icon for Additional Details */}
@@ -63,6 +100,15 @@ const Home = () => {
                     <FaInfoCircle size={18} /> Contact us for more information
                 </p>
             </div>
+
+            {/* Webcam Popup */}
+            {showWebcam && (
+                <div style={webcamContainerStyle}>
+                    <Webcam ref={webcamRef} screenshotFormat="image/jpeg" style={webcamStyle} />
+                    <button style={captureButtonStyle} onClick={handleCapture}>Capture</button>
+                    <button style={closeButtonStyle} onClick={() => setShowWebcam(false)}>Close</button>
+                </div>
+            )}
 
             {/* Chatbot Assistant - Draggable */}
             <div
@@ -121,8 +167,8 @@ const paragraphStyle = {
 
 const buttonContainerStyle = {
     display: 'flex',
-    gap: '10px', // Adds space between buttons
-    flexWrap: 'wrap', // Ensures responsiveness
+    gap: '10px',
+    flexWrap: 'wrap',
     justifyContent: 'center',
 };
 
@@ -133,7 +179,6 @@ const buttonStyle = {
     borderRadius: '10px',
     fontWeight: '600',
     cursor: 'pointer',
-    transition: 'background-color 0.3s ease, transform 0.2s ease',
     border: 'none',
     fontSize: '1rem',
     display: 'flex',
@@ -141,7 +186,7 @@ const buttonStyle = {
     justifyContent: 'center',
     gap: '10px',
     flex: '1',
-    minWidth: '180px', // Ensures both buttons are equal size
+    minWidth: '180px',
 };
 
 const infoStyle = {
@@ -164,7 +209,26 @@ const chatbotStyle = {
     alignItems: 'center',
     justifyContent: 'center',
     boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
-    transition: 'transform 0.2s ease',
 };
+
+const webcamContainerStyle = {
+    position: "fixed",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    background: "#fff",
+    padding: "20px",
+    borderRadius: "10px",
+    textAlign: "center",
+};
+
+const webcamStyle = {
+    width: "100%",
+    maxWidth: "400px",
+    borderRadius: "10px",
+};
+
+const captureButtonStyle = { ...buttonStyle, marginTop: "10px" };
+const closeButtonStyle = { ...buttonStyle, backgroundColor: "red", marginTop: "10px" };
 
 export default Home;
