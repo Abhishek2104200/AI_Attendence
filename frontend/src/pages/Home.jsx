@@ -9,6 +9,7 @@ const Home = () => {
     const [offset, setOffset] = useState({ x: 0, y: 0 });
     const [showWebcam, setShowWebcam] = useState(false); // State to toggle webcam
     const webcamRef = useRef(null); // Webcam reference
+    const [messages, setMessages] = useState([]); // To store chat messages
 
     useEffect(() => {
         const handleMouseMove = (e) => {
@@ -32,8 +33,39 @@ const Home = () => {
         setOffset({ x: e.clientX - position.x, y: e.clientY - position.y });
     };
 
-    const openChatbot = () => {
-        alert("Chatbot Coming Soon! 🤖");
+    // Function to send message and get chatbot response
+    const handleSendMessage = async (message) => {
+        if (!message) return;  // Don't send an empty message
+
+        try {
+            // Send message to backend
+            const response = await fetch("http://127.0.0.1:5000/chat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ message }),
+            });
+
+            const data = await response.json();
+
+            if (data.reply) {
+                setMessages([...messages, { text: message, sender: "user" }, { text: data.reply, sender: "bot" }]);
+            } else {
+                alert("Chatbot failed to respond!");
+            }
+        } catch (error) {
+            console.error("Error sending message:", error);
+            alert("Failed to connect to chatbot.");
+        }
+    };
+
+    const openChatbot = async () => {
+        const userMessage = prompt("Type your message:");
+
+        if (userMessage) {
+            handleSendMessage(userMessage);
+        }
     };
 
     // Function to upload captured image to FastAPI backend
@@ -77,9 +109,9 @@ const Home = () => {
             <div style={cardStyle}>
                 <h1 style={headingStyle}>Welcome To VITAS</h1>
                 <p style={paragraphStyle}>
-                   VITAS is a Secure & automated attendance tracking using AI-powered facial recognition.
+                    VITAS is a Secure & automated attendance tracking using AI-powered facial recognition.
                 </p>
-                
+
                 {/* Button Container for Admin Login & Attendance Recorder */}
                 <div style={buttonContainerStyle}>
                     {/* Admin Login Button with User Icon */}
@@ -202,33 +234,52 @@ const chatbotStyle = {
     position: 'absolute',
     backgroundColor: '#ff5722',
     color: 'white',
-    width: '60px',
-    height: '60px',
     borderRadius: '50%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+    padding: '20px',
+    boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.1)',
 };
 
 const webcamContainerStyle = {
-    position: "fixed",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    background: "#fff",
-    padding: "20px",
-    borderRadius: "10px",
-    textAlign: "center",
+    position: 'fixed',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    zIndex: '1000',
+    backgroundColor: 'white',
+    padding: '20px',
+    borderRadius: '12px',
+    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
 };
 
 const webcamStyle = {
-    width: "100%",
-    maxWidth: "400px",
-    borderRadius: "10px",
+    width: '100%',
+    height: 'auto',
 };
 
-const captureButtonStyle = { ...buttonStyle, marginTop: "10px" };
-const closeButtonStyle = { ...buttonStyle, backgroundColor: "red", marginTop: "10px" };
+const captureButtonStyle = {
+    backgroundColor: '#4c6ef5',
+    color: 'white',
+    padding: '12px 20px',
+    borderRadius: '10px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    border: 'none',
+    marginTop: '10px',
+    display: 'block',
+    width: '100%',
+};
+
+const closeButtonStyle = {
+    backgroundColor: '#e91e63',
+    color: 'white',
+    padding: '12px 20px',
+    borderRadius: '10px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    border: 'none',
+    marginTop: '10px',
+    display: 'block',
+    width: '100%',
+};
 
 export default Home;
